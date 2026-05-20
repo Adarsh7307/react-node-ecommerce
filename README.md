@@ -1,384 +1,320 @@
-# 🛒 MERN Ecommerce Platform
-
-<div align="center">
-
-![MERN Stack](https://img.shields.io/badge/MERN-Stack-brightgreen?style=for-the-badge)
-![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
-![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
-
-**A production-ready full-stack ecommerce platform with advanced features**
-
-[🚀 Live Demo](https://react-node-ecommerce-nine.vercel.app/) • [Features](#-features) • [Installation](#-installation) • [API Docs](#-api-endpoints)
-
+A full-featured, production-ready Ecommerce web application built with the MERN stack.
+Deployed on AWS EC2 with a complete CI/CD pipeline using Jenkins, Nginx, and PM2.
+🌐 Live Demo · 🔧 Jenkins Dashboard · 🐛 Report Bug
 </div>
 
----
+📸 Application Preview
+Home PageAdmin DashboardPremium Quality Guaranteed — Hero Banner with Shop & Top Brands CTAKPI metrics: Users, Products, Orders, Revenue
 
-## 📋 Overview
+🌐 Live at: http://13.233.77.198
 
-A complete ecommerce solution built from scratch with the MERN stack, featuring secure authentication, role-based access control, seamless image uploads via Cloudinary, order management, and a modern responsive UI. Deployed and production-ready with both frontend and backend fully integrated.
 
-## ✨ Features
+✨ Features
+👤 User Features
 
-### 🔐 Authentication & Authorization
-- Secure JWT-based user authentication
-- Password hashing with bcrypt
-- Role-based access control (User/Admin)
-- Protected routes with auth middleware
-- Persistent login with Context API
-- Profile management
+🔐 Authentication — Register & Login with JWT-based secure sessions
+🛍️ Product Browsing — Browse all products with search and category filter
+🔍 Search & Filter — Search by name, filter by category, sort by price
+🛒 Shopping Cart — Add, remove, update quantity in real time
+📦 Order Placement — Place orders with shipping address
+📋 Order History — View all past orders with expandable item details
 
-### 🛍️ Product Management
-- Complete CRUD operations for products
-- Image upload integration with Cloudinary
-- Multer memory storage for efficient uploads
-- Product categories and descriptions
-- Real-time product search and filtering
-- Product detail pages with full information
+🔧 Admin Features
 
-### 📦 Order Management and tracking
-- Seamless order creation and tracking
-- Order history for users
-- Admin order management dashboard
-- Order status updates
-- Customer order details view
+📊 Dashboard — View total users, products, orders & revenue
+📦 Product Management — Add, edit, delete products with image upload
+🧾 Order Management — View and update order status
+👥 User Management — View all registered users
 
-### 🎨 Modern UI/UX
-- Fully responsive design with Tailwind CSS
-- Loading states and spinners
-- Clean and intuitive interface
-- Mobile-first approach
-- Smooth navigation with React Router
-- SEO optimized with meta tags
+🛡️ Security Features
 
-### 🚀 Performance & Deployment
-- Vite for ultra-fast development
-- SPA routing with Vercel rewrites
-- Backend keep-alive mechanism to prevent server sleep
-- Environment-based configuration
-- Production-ready deployment on Vercel and Render
+JWT Authentication with token expiry
+Bcrypt password hashing
+Role-based access control (User / Admin)
+Protected routes on both frontend & backend
+CORS configured for production
 
-### 🏗️ Architecture
-- Modular MVC backend structure
-- Centralized API service layer
-- Context-based state management
-- Reusable React components
-- Clean separation of concerns
 
----
+🧰 Tech Stack
+LayerTechnologyFrontendReact.js 18, Vite, Tailwind CSSBackendNode.js, Express.jsDatabaseMongoDB Atlas (Mongoose ODM)AuthenticationJWT + BcryptImage StorageCloudinaryFile UploadMulter + StreamifierState ManagementReact Context APIRoutingReact Router v6HTTP ClientAxiosWeb ServerNginx (Reverse Proxy)Process ManagerPM2CI/CDJenkins PipelineCloudAWS EC2 (Mumbai — ap-south-1)
 
-## 🛠️ Tech Stack
+🏗️ Architecture Overview
+                        ┌─────────────────────────────────────┐
+                        │         AWS EC2 Instance            │
+                        │      (c7i-flex.large, Mumbai)       │
+                        │   Public IP: 13.233.77.198          │
+                        │                                     │
+   User Browser  ──────►│  Nginx (Port 80)                    │
+                        │    │                                │
+                        │    ├── Serves React Build (static)  │
+                        │    └── Proxy → Node.js :5000        │
+                        │              │                      │
+                        │           PM2 Process               │
+                        │     (ecommerce-backend)             │
+                        │              │                      │
+                        │              └──► MongoDB Atlas      │
+                        │                  (Cloud DB)         │
+                        │                                     │
+   GitHub Push  ───────►│  Jenkins (Port 8080)                │
+   (Webhook)            │  CI/CD Auto Deploy Pipeline         │
+                        └─────────────────────────────────────┘
 
-### Frontend
-- **React.js** - Component-based UI library
-- **Vite** - Lightning-fast build tool
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router v6** - Client-side routing
-- **Context API** - State management for auth and cart
-- **Axios** - HTTP client for API requests
+🚀 CI/CD Pipeline (Jenkins + GitHub Webhook)
+This project uses a fully automated CI/CD pipeline. Every git push to the main branch automatically triggers a Jenkins build that deploys the latest code to the AWS EC2 server — zero manual deployment needed.
+🔄 Pipeline Flow
+Developer pushes code
+        │
+        ▼
+  GitHub (main branch)
+        │
+        │  Webhook POST trigger
+        ▼
+  Jenkins Server (43.204.35.151:8080)
+        │
+        ▼
+  ┌─────────────────────────────────────────────────┐
+  │              Jenkins Pipeline Stages            │
+  │                                                 │
+  │  Stage 1: Clone Repository          (~1s)  ✅  │
+  │  Stage 2: Install Backend Deps      (~2s)  ✅  │
+  │  Stage 3: Install Frontend Deps     (~1s)  ✅  │
+  │  Stage 4: Build Frontend            (~3s)  ✅  │
+  │  Stage 5: Deploy Frontend           (~616ms) ✅ │
+  │  Stage 6: Restart Backend           (~1s)  ✅  │
+  └─────────────────────────────────────────────────┘
+        │
+        ▼
+  Live App Updated at http://13.233.77.198
+  Total Pipeline Time: ~10 seconds ⚡
+📄 Jenkinsfile
+groovypipeline {
+    agent any
+    environment {
+        APP_DIR = "/home/ubuntu/react-node-ecommerce"
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main',
+                url: 'https://github.com/Adarsh7307/react-node-ecommerce.git'
+            }
+        }
+        stage('Install Backend Dependencies') {
+            steps {
+                dir('backend') {
+                    sh 'npm install'
+                }
+            }
+        }
+        stage('Install Frontend Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                }
+            }
+        }
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run build'
+                }
+            }
+        }
+        stage('Deploy Frontend') {
+            steps {
+                sh 'sudo rm -rf /var/www/html/*'
+                sh 'sudo cp -r frontend/dist/* /var/www/html/'
+            }
+        }
+        stage('Restart Backend') {
+            steps {
+                dir('backend') {
+                    sh '''
+                    pm2 restart ecommerce-backend || \
+                    pm2 start src/index.js --name ecommerce-backend
+                    '''
+                }
+            }
+        }
+    }
+}
+✅ Pipeline Stage Details
+StageWhat It DoesTimeClone RepositoryPulls latest code from GitHub main branch~1sInstall Backend DependenciesRuns npm install in /backend folder~2sInstall Frontend DependenciesRuns npm install in /frontend folder~1sBuild FrontendRuns npm run build — Vite compiles React to static files~3sDeploy FrontendCopies dist/ build output to /var/www/html/ (Nginx root)~616msRestart BackendRestarts PM2 process ecommerce-backend (or starts fresh)~1s
 
-### Backend
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web application framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **JWT** - Secure authentication tokens
-- **bcrypt** - Password hashing
+☁️ AWS Infrastructure
+EC2 Instance Details
+PropertyValueInstance IDi-03be927a8bc277128Instance Namemy-pm2-deploymentInstance Typec7i-flex.largeRegionAsia Pacific (Mumbai) — ap-south-1Public IPv413.233.77.198Private IPv4172.31.45.124OSUbuntu (Linux)State🟢 Running
+🔒 Security Group — Inbound Rules
+TypeProtocolPortPurposeSSHTCP22Remote server accessHTTPTCP80Public web traffic (Nginx)HTTPSTCP443Secure web trafficCustom TCPTCP8080Jenkins dashboard access
 
-### Cloud Services
-- **Cloudinary** - Image storage and optimization
-- **Multer** - File upload middleware (memory storage)
-- **Vercel** - Frontend deployment
-- **Render** - Backend deployment
+🌐 Nginx Configuration
+Nginx serves as both the static file server for the React frontend and a reverse proxy for the Node.js backend API.
+nginx# /etc/nginx/sites-available/default
 
-### Dev Tools
-- **Nodemon** - Development auto-restart
-- **Postman** - API testing
-- **ESLint** - Code quality
+server {
+    listen 80;
+    server_name 13.233.77.198;
 
----
+    # Serve React build (frontend)
+    root /var/www/html;
+    index index.html;
 
-## 📁 Project Structure
+    # SPA routing fix — serve index.html for all routes
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 
-```
-ecommerce-app/
-├── backend/
+    # Proxy API requests to Node.js backend
+    location /api/ {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+Check Nginx status:
+bashsystemctl status nginx
+# ● nginx.service - A high performance web server
+#    Active: active (running) since May 16 16:23:42 UTC
+
+⚙️ PM2 — Backend Process Manager
+PM2 keeps the Node.js backend alive permanently — it auto-restarts if the process crashes.
+bash# Start backend for the first time
+pm2 start src/index.js --name ecommerce-backend
+
+# Useful PM2 commands
+pm2 status                        # View all running processes
+pm2 logs ecommerce-backend        # View live backend logs
+pm2 restart ecommerce-backend     # Restart the backend
+pm2 stop ecommerce-backend        # Stop the backend
+pm2 startup                       # Auto-start PM2 on server reboot
+pm2 save                          # Save current process list
+PM2 Process Status:
+NameStatusCPUMemoryUptimeecommerce-backend🟢 online0%~30.8 MBstable
+
+🔗 GitHub Webhook Setup
+The GitHub Webhook connects your repository to Jenkins for automatic deployments.
+How it Works
+
+You push code → GitHub fires a POST request to Jenkins
+Jenkins receives the trigger → starts the pipeline automatically
+App is deployed within ~10 seconds ⚡
+
+Configured Webhooks
+URLEventsStatushttp://54.87.35.231:8080/github-we...All events❌ Failed (old server)http://43.204.35.151:8080/github-w...All events✅ Last delivery successful
+
+The second webhook (43.204.35.151) is the active Jenkins server — last delivery was successful.
+
+
+📁 Project Structure
+react-node-ecommerce/
+│
+├── 📂 frontend/                  # React.js Frontend (Vite)
 │   ├── src/
-│   │   ├── config/                 # Cloudinary configuration
-│   │   ├── controllers/            # Business logic
-│   │   │   ├── authController.js
-│   │   │   ├── productController.js
-│   │   │   └── orderController.js
-│   │   ├── db/                     # MongoDB connection
-│   │   ├── middlewares/            # Auth & upload middlewares
-│   │   │   ├── authMiddleware.js
-│   │   │   └── uploadMiddleware.js
-│   │   ├── models/                 # Mongoose schemas
+│   │   ├── components/           # Reusable UI components
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── ProductCard.jsx
+│   │   │   ├── PrivateRoute.jsx
+│   │   │   └── AdminRoute.jsx
+│   │   ├── pages/                # Page-level components
+│   │   │   ├── Home.jsx
+│   │   │   ├── Shop.jsx
+│   │   │   ├── Cart.jsx
+│   │   │   ├── Orders.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   └── admin/
+│   │   │       ├── Dashboard.jsx
+│   │   │       ├── Products.jsx
+│   │   │       ├── Orders.jsx
+│   │   │       └── Users.jsx
+│   │   ├── context/
+│   │   │   ├── AuthContext.jsx
+│   │   │   └── CartContext.jsx
+│   │   ├── api/
+│   │   │   └── axios.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── public/
+│   └── package.json
+│
+├── 📂 backend/                   # Node.js + Express API
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── db.js
+│   │   │   └── cloudinary.js
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   │   └── authMiddleware.js
+│   │   ├── models/
 │   │   │   ├── User.js
 │   │   │   ├── Product.js
 │   │   │   └── Order.js
-│   │   ├── routes/                 # API routes
-│   │   │   ├── authRoutes.js
-│   │   │   ├── productRoutes.js
-│   │   │   └── orderRoutes.js
-│   │   ├── app.js                  # Express app setup
-│   │   └── index.js                # Server entry point
-│   ├── .env                       # Environment variables
+│   │   ├── routes/
+│   │   └── app.js
+│   ├── index.js
 │   └── package.json
 │
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/             # Reusable UI components
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   ├── ProductCard.jsx
-│   │   │   └── ...
-│   │   ├── context/                # React Context
-│   │   │   ├── AuthContext.jsx
-│   │   │   └── CartContext.jsx
-│   │   ├── pages/                  # Route pages
-│   │   │   ├── Home.jsx
-│   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   ├── ProductDetails.jsx
-│   │   │   ├── ProductList.jsx
-│   │   │   ├── Orders.jsx
-│   │   │   └── Admin/
-│   │   ├── routes/                 # Route guards
-│   │   │   ├── AdminRoute.jsx
-│   │   │   └── PrivateRoute.jsx
-│   │   ├── services/               # API abstractions
-│   │   │   └── api.js
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── vercel.json                # SPA routing config
-│   ├── vite.config.js
-│   └── package.json
-│
+├── Jenkinsfile                   # ← CI/CD pipeline definition
 └── README.md
-```
 
----
+🛠️ Local Development Setup
+Prerequisites
 
-## 🚀 Installation
+Node.js v18+, npm v9+, Git
+MongoDB Atlas account
+Cloudinary account
 
-### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (local or Atlas)
-- Cloudinary account
-- npm or yarn
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/Siddique-7/react-node-ecommerce.git
-cd ecommerce-app
-```
-
-### 2. Backend Setup
-```bash
-cd backend
+1. Clone the Repository
+bashgit clone https://github.com/Adarsh7307/react-node-ecommerce.git
+cd react-node-ecommerce
+2. Backend Setup
+bashcd backend
 npm install
-
-# Create .env file with the following variables:
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-# Start backend development server
-npm run dev
-```
-
-### 3. Frontend Setup
-```bash
-cd ../frontend
-npm install
-
-# Create .env file (if needed):
-VITE_API_URL=http://localhost:5000
-
-# Start frontend development server
-npm run dev
-```
-
-### 4. Access the Application
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:5000`
-
----
-
-## 📡 API Endpoints
-
-### Authentication
-```http
-POST   /api/auth/register      # Register new user
-POST   /api/auth/login         # Login user
-GET    /api/auth/profile       # Get user profile (Protected)
-```
-
-### Products
-```http
-GET    /api/products           # Get all products
-GET    /api/products/:id       # Get single product by ID
-POST   /api/products           # Create product (Admin + Image Upload)
-PUT    /api/products/:id       # Update product (Admin)
-DELETE /api/products/:id       # Delete product (Admin)
-```
-
-### Orders
-```http
-POST   /api/orders             # Create new order (Protected)
-GET    /api/orders             # Get user orders (Protected)
-GET    /api/orders/:id         # Get order details (Protected)
-PUT    /api/orders/:id         # Update order status (Admin)
-```
-
-**Note:** Protected routes require Bearer JWT token in Authorization header.
-
----
-
-## 🎯 Key Features Implementation
-
-### Cloudinary Image Upload
-- Multer with **memory storage** for efficient file handling
-- Direct upload to Cloudinary using `upload_stream`
-- Automatic image optimization and transformation
-- Secure URL generation for product images
-
-```javascript
-// Cloudinary integration with memoryStorage
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-```
-
-### JWT Authentication Flow
-1. User registers/logs in
-2. Server generates JWT token
-3. Token stored in Context API
-4. Protected routes verify token via middleware
-5. Role-based access for Admin features
-
-### SPA Routing on Vercel
-```json
-// vercel.json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
-}
-```
-Ensures client-side routing works on page refresh.
-
-### Backend Keep-Alive
-Periodic ping mechanism to prevent serverless backend from sleeping, ensuring consistent performance.
-
----
-
-## 🌐 Deployment
-
-### Frontend (Vercel)
-```bash
-cd frontend
-vercel --prod
-```
-- Includes `vercel.json` for SPA routing
-- Environment variables set in Vercel dashboard
-- Auto-deploys on push to main branch
-
-### Backend (Render/Railway/Heroku)
-1. Create new web service
-2. Connect GitHub repository
-3. Set environment variables
-4. Deploy from `backend` directory
-5. Update frontend API URL
-
----
-
-## 📸 Screenshots
-
-*Add your application screenshots here showing:*
-- ![Home](https://res.cloudinary.com/dauvdrmb7/image/upload/v1754827337/Screenshot_2025-08-10_172623_djw6ik.png)
-- ![Product](https://res.cloudinary.com/dauvdrmb7/image/upload/v1754827327/Screenshot_2025-08-10_172736_ckqdpf.png)
-- ![Full Product Details](https://res.cloudinary.com/dauvdrmb7/image/upload/v1761065276/Screenshot_2025-10-21_220514_jydmp7.png)
-- ![Register](https://res.cloudinary.com/dauvdrmb7/image/upload/v1761065263/Screenshot_2025-10-21_220411_gpkv0m.png)
-- ![Admin panel](https://res.cloudinary.com/dauvdrmb7/image/upload/v1761065284/Screenshot_2025-10-21_220611_t6yvdj.png)
-  
----
-
-## 🔧 Environment Variables
-
-### Backend (.env)
-```env
-PORT=5000
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname
-JWT_SECRET=your_super_secret_jwt_key
+Create backend/.env:
+envPORT=5000
+MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.mongodb.net/mern-shop
+JWT_SECRET=your_jwt_secret
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-```
+CLIENT_URL=http://localhost:5173
+bashnpm run dev   # Starts at http://localhost:5000
+3. Frontend Setup
+bashcd ../frontend
+npm install
+Create frontend/.env:
+envVITE_API_URL=http://localhost:5000
+bashnpm run dev   # Starts at http://localhost:5173
 
-### Frontend (.env)
-```env
-VITE_API_URL=https://your-backend-url.com
-```
+🔌 API Endpoints
+Auth — /api/auth
+MethodEndpointAuthDescriptionPOST/register❌Register new userPOST/login❌Login, get JWTGET/profile✅Get current user
+Products — /api/products
+MethodEndpointAuthDescriptionGET/❌Get all productsGET/:id❌Get single productPOST/🔒 AdminAdd product + imagePUT/:id🔒 AdminUpdate productDELETE/:id🔒 AdminDelete product
+Orders — /api/orders
+MethodEndpointAuthDescriptionPOST/✅Place orderGET/✅Get my ordersPUT/:id🔒 AdminUpdate status
+Admin — /api/admin
+MethodEndpointAuthDescriptionGET/dashboard🔒 AdminKPI metricsGET/users🔒 AdminAll usersGET/orders🔒 AdminAll orders
 
----
+🔐 Environment Variables
+VariableWhereDescriptionMONGO_URIBackendMongoDB Atlas connection stringJWT_SECRETBackendJWT signing secretCLOUDINARY_CLOUD_NAMEBackendCloudinary cloud nameCLOUDINARY_API_KEYBackendCloudinary API keyCLOUDINARY_API_SECRETBackendCloudinary API secretCLIENT_URLBackendFrontend URL (CORS)PORTBackendServer port (default 5000)VITE_API_URLFrontendBackend API base URL
 
-## 🤝 Contributing
+⚠️ Never commit .env files! Already in .gitignore.
 
-Contributions are welcome! Please follow these steps:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+📊 Live Production Stats
+MetricValue👤 Registered Users13📦 Products Listed10🧾 Total Orders18💰 Total Revenue₹53,58,458🚀 Jenkins Builds#2 (latest SUCCESS)⚡ Deploy Time~10 seconds
 
----
+👥 Team
+NameRoleRoll NoMuhammad Siddique ShaikhFull Stack Developer2204190100027Adarsh TiwariBackend + DevOps2204190100004Subham KumarFrontend Developer2204190100050
+College: Prabhat Engineering College, Kanpur Dehat
+University: AKTU, Lucknow | Session: 2025-26 | B.Tech CSE
+Guided By: Dr. Nirvikar Katiyar & Mr. Mohd. Azhar Naushad
 
-## 📝 License
+🛠️ Troubleshooting
+ProblemFixJenkins build fails at "Deploy Frontend"Run echo "jenkins ALL=(ALL) NOPASSWD: /bin/rm, /bin/cp" >> /etc/sudoers on EC2Backend not startingSSH into EC2 → pm2 logs ecommerce-backend to see errorNginx showing 502 Bad GatewayBackend is down → pm2 restart ecommerce-backendWebhook not triggeringCheck Jenkins URL in GitHub → Settings → WebhooksPage refresh returns 404Nginx config missing try_files $uri /index.html
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
----
-
-## 👨‍💻 Author
-
-**Muhammad Siddique Shaikh**
-
-- GitHub: [@Siddique-7](https://github.com/Siddique-7)
-- LinkedIn: [@mdsiddique07](https://www.linkedin.com/in/mdsiddique07/)
-- Portfolio: [siddique-tau.vercel.app](https://siddique-tau.vercel.app/)
-
----
-
-## 🙏 Acknowledgments
-
-- MERN Stack Community
-- Cloudinary Documentation
-- Tailwind CSS Team
-- React.js Community
-- All contributors and supporters
-
----
-
-## 📞 Support
-
-For support, email muhammadsiddik687@gmail.com or create an issue in the repository.
-
----
-
-<div align="center">
-
-### ⭐ If you found this project helpful, please give it a star!
-
-**Built with ❤️ by Muhammad Siddique Shaikh**
-
-</div>
