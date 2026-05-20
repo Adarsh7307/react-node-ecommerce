@@ -41,7 +41,7 @@ A complete ecommerce solution built from scratch with the MERN stack, featuring 
 - Real-time product search and filtering
 - Product detail pages with full information
 
-### 📦 Order Management
+### 📦 Order Management and tracking
 - Seamless order creation and tracking
 - Order history for users
 - Admin order management dashboard
