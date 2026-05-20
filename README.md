@@ -1,320 +1,132 @@
-A full-featured, production-ready Ecommerce web application built with the MERN stack.
-Deployed on AWS EC2 with a complete CI/CD pipeline using Jenkins, Nginx, and PM2.
-🌐 Live Demo · 🔧 Jenkins Dashboard · 🐛 Report Bug
-</div>
+🛒 MERN Shop — Full Stack Ecommerce App with CI/CD Pipeline
+A full-stack ecommerce application built with the MERN stack (MongoDB, Express, React, Node.js), deployed on AWS EC2 using Jenkins CI/CD, PM2, and Nginx.
 
-📸 Application Preview
-Home PageAdmin DashboardPremium Quality Guaranteed — Hero Banner with Shop & Top Brands CTAKPI metrics: Users, Products, Orders, Revenue
-
-🌐 Live at: http://13.233.77.198
+Every git push to main automatically builds and deploys the app via GitHub Webhooks + Jenkins Pipeline.
 
 
-✨ Features
-👤 User Features
+🚀 Live Demo
+Frontend: http://13.233.77.198
 
-🔐 Authentication — Register & Login with JWT-based secure sessions
-🛍️ Product Browsing — Browse all products with search and category filter
-🔍 Search & Filter — Search by name, filter by category, sort by price
-🛒 Shopping Cart — Add, remove, update quantity in real time
-📦 Order Placement — Place orders with shipping address
-📋 Order History — View all past orders with expandable item details
+🏗️ Architecture Overview
+GitHub (push) → Webhook → Jenkins (CI/CD) → Build & Deploy
+                                               ↓
+                                         Nginx (port 80) → React Frontend (dist/)
+                                         PM2             → Node.js Backend
+Infrastructure:
 
-🔧 Admin Features
-
-📊 Dashboard — View total users, products, orders & revenue
-📦 Product Management — Add, edit, delete products with image upload
-🧾 Order Management — View and update order status
-👥 User Management — View all registered users
-
-🛡️ Security Features
-
-JWT Authentication with token expiry
-Bcrypt password hashing
-Role-based access control (User / Admin)
-Protected routes on both frontend & backend
-CORS configured for production
+Cloud: AWS EC2 — c7i-flex.large — Asia Pacific (Mumbai) ap-south-1
+Web Server: Nginx — serves React build files, reverse proxy for backend
+Process Manager: PM2 — keeps Node.js backend alive, auto-restarts on crash
+CI/CD: Jenkins — running on port 8080
+Trigger: GitHub Webhook — fires on every push to main
 
 
 🧰 Tech Stack
-LayerTechnologyFrontendReact.js 18, Vite, Tailwind CSSBackendNode.js, Express.jsDatabaseMongoDB Atlas (Mongoose ODM)AuthenticationJWT + BcryptImage StorageCloudinaryFile UploadMulter + StreamifierState ManagementReact Context APIRoutingReact Router v6HTTP ClientAxiosWeb ServerNginx (Reverse Proxy)Process ManagerPM2CI/CDJenkins PipelineCloudAWS EC2 (Mumbai — ap-south-1)
+LayerTechnologyFrontendReact + ViteBackendNode.js + ExpressDatabaseMongoDBWeb ServerNginxProcess ManagerPM2CI/CDJenkinsCloudAWS EC2 (Ubuntu)
 
-🏗️ Architecture Overview
-                        ┌─────────────────────────────────────┐
-                        │         AWS EC2 Instance            │
-                        │      (c7i-flex.large, Mumbai)       │
-                        │   Public IP: 13.233.77.198          │
-                        │                                     │
-   User Browser  ──────►│  Nginx (Port 80)                    │
-                        │    │                                │
-                        │    ├── Serves React Build (static)  │
-                        │    └── Proxy → Node.js :5000        │
-                        │              │                      │
-                        │           PM2 Process               │
-                        │     (ecommerce-backend)             │
-                        │              │                      │
-                        │              └──► MongoDB Atlas      │
-                        │                  (Cloud DB)         │
-                        │                                     │
-   GitHub Push  ───────►│  Jenkins (Port 8080)                │
-   (Webhook)            │  CI/CD Auto Deploy Pipeline         │
-                        └─────────────────────────────────────┘
-
-🚀 CI/CD Pipeline (Jenkins + GitHub Webhook)
-This project uses a fully automated CI/CD pipeline. Every git push to the main branch automatically triggers a Jenkins build that deploys the latest code to the AWS EC2 server — zero manual deployment needed.
-🔄 Pipeline Flow
-Developer pushes code
-        │
-        ▼
-  GitHub (main branch)
-        │
-        │  Webhook POST trigger
-        ▼
-  Jenkins Server (43.204.35.151:8080)
-        │
-        ▼
-  ┌─────────────────────────────────────────────────┐
-  │              Jenkins Pipeline Stages            │
-  │                                                 │
-  │  Stage 1: Clone Repository          (~1s)  ✅  │
-  │  Stage 2: Install Backend Deps      (~2s)  ✅  │
-  │  Stage 3: Install Frontend Deps     (~1s)  ✅  │
-  │  Stage 4: Build Frontend            (~3s)  ✅  │
-  │  Stage 5: Deploy Frontend           (~616ms) ✅ │
-  │  Stage 6: Restart Backend           (~1s)  ✅  │
-  └─────────────────────────────────────────────────┘
-        │
-        ▼
-  Live App Updated at http://13.233.77.198
-  Total Pipeline Time: ~10 seconds ⚡
-📄 Jenkinsfile
+⚙️ Jenkins Pipeline
+The Jenkins pipeline (Jenkinsfile) has 6 stages:
 groovypipeline {
-    agent any
-    environment {
-        APP_DIR = "/home/ubuntu/react-node-ecommerce"
+  agent any
+  environment {
+    APP_DIR = "/home/ubuntu/react-node-ecommerce"
+  }
+  stages {
+    stage('Clone Repository') {
+      steps {
+        git branch: 'main', url: 'https://github.com/Adarsh7307/react-node-ecommerce.git'
+      }
     }
-    stages {
-        stage('Clone Repository') {
-            steps {
-                git branch: 'main',
-                url: 'https://github.com/Adarsh7307/react-node-ecommerce.git'
-            }
-        }
-        stage('Install Backend Dependencies') {
-            steps {
-                dir('backend') {
-                    sh 'npm install'
-                }
-            }
-        }
-        stage('Install Frontend Dependencies') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                }
-            }
-        }
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    sh 'npm run build'
-                }
-            }
-        }
-        stage('Deploy Frontend') {
-            steps {
-                sh 'sudo rm -rf /var/www/html/*'
-                sh 'sudo cp -r frontend/dist/* /var/www/html/'
-            }
-        }
-        stage('Restart Backend') {
-            steps {
-                dir('backend') {
-                    sh '''
-                    pm2 restart ecommerce-backend || \
-                    pm2 start src/index.js --name ecommerce-backend
-                    '''
-                }
-            }
-        }
+    stage('Install Backend Dependencies') {
+      steps {
+        dir('backend') { sh 'npm install' }
+      }
     }
+    stage('Install Frontend Dependencies') {
+      steps {
+        dir('frontend') { sh 'npm install' }
+      }
+    }
+    stage('Build Frontend') {
+      steps {
+        dir('frontend') { sh 'npm run build' }
+      }
+    }
+    stage('Deploy Frontend') {
+      steps {
+        sh 'sudo rm -rf /var/www/html/'
+        sh 'sudo cp -r frontend/dist/ /var/www/html/'
+      }
+    }
+    stage('Restart Backend') {
+      steps {
+        dir('backend') {
+          sh 'pm2 restart ecommerce-backend || pm2 start src/index.js --name ecommerce-backend'
+        }
+      }
+    }
+  }
 }
-✅ Pipeline Stage Details
-StageWhat It DoesTimeClone RepositoryPulls latest code from GitHub main branch~1sInstall Backend DependenciesRuns npm install in /backend folder~2sInstall Frontend DependenciesRuns npm install in /frontend folder~1sBuild FrontendRuns npm run build — Vite compiles React to static files~3sDeploy FrontendCopies dist/ build output to /var/www/html/ (Nginx root)~616msRestart BackendRestarts PM2 process ecommerce-backend (or starts fresh)~1s
+Pipeline Stage View
+StageBuild #1Build #2Clone Repository✅ 1s✅ 757msInstall Backend Dependencies✅ 4s✅ 2sInstall Frontend Dependencies✅ 5s✅ 1sBuild Frontend✅ 3s✅ 3sDeploy Frontend❌ 507ms (failed)✅ 616msRestart Backend❌ skipped✅ 1s
 
-☁️ AWS Infrastructure
-EC2 Instance Details
-PropertyValueInstance IDi-03be927a8bc277128Instance Namemy-pm2-deploymentInstance Typec7i-flex.largeRegionAsia Pacific (Mumbai) — ap-south-1Public IPv413.233.77.198Private IPv4172.31.45.124OSUbuntu (Linux)State🟢 Running
-🔒 Security Group — Inbound Rules
-TypeProtocolPortPurposeSSHTCP22Remote server accessHTTPTCP80Public web traffic (Nginx)HTTPSTCP443Secure web trafficCustom TCPTCP8080Jenkins dashboard access
+Build #1 failed — sudo permission was not granted to Jenkins user for rm -rf /var/www/html/.
+Fix: Added Jenkins user to sudoers with NOPASSWD for required commands.
+Build #2 — All 6 stages passed ✅, app went live!
 
-🌐 Nginx Configuration
-Nginx serves as both the static file server for the React frontend and a reverse proxy for the Node.js backend API.
-nginx# /etc/nginx/sites-available/default
 
-server {
-    listen 80;
-    server_name 13.233.77.198;
+🔧 Server Setup
+AWS EC2 Security Group — Inbound Rules
+TypeProtocolPortSSHTCP22HTTPTCP80HTTPSTCP443Custom TCP (Jenkins)TCP8080
+Nginx Config
+Nginx serves the React production build (/var/www/html/) on port 80.
+bash# Check nginx status
+systemctl status nginx
+PM2 — Backend Process Management
+PM2 keeps the Express backend running as a daemon (ecommerce-backend).
+bash# Check running processes
+pm2 list
 
-    # Serve React build (frontend)
-    root /var/www/html;
-    index index.html;
+# Restart backend manually
+pm2 restart ecommerce-backend
 
-    # SPA routing fix — serve index.html for all routes
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Proxy API requests to Node.js backend
-    location /api/ {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-Check Nginx status:
-bashsystemctl status nginx
-# ● nginx.service - A high performance web server
-#    Active: active (running) since May 16 16:23:42 UTC
-
-⚙️ PM2 — Backend Process Manager
-PM2 keeps the Node.js backend alive permanently — it auto-restarts if the process crashes.
-bash# Start backend for the first time
-pm2 start src/index.js --name ecommerce-backend
-
-# Useful PM2 commands
-pm2 status                        # View all running processes
-pm2 logs ecommerce-backend        # View live backend logs
-pm2 restart ecommerce-backend     # Restart the backend
-pm2 stop ecommerce-backend        # Stop the backend
-pm2 startup                       # Auto-start PM2 on server reboot
-pm2 save                          # Save current process list
-PM2 Process Status:
-NameStatusCPUMemoryUptimeecommerce-backend🟢 online0%~30.8 MBstable
+# View logs
+pm2 logs ecommerce-backend
 
 🔗 GitHub Webhook Setup
-The GitHub Webhook connects your repository to Jenkins for automatic deployments.
-How it Works
 
-You push code → GitHub fires a POST request to Jenkins
-Jenkins receives the trigger → starts the pipeline automatically
-App is deployed within ~10 seconds ⚡
+Go to your GitHub repo → Settings → Webhooks → Add webhook
+Payload URL: http://<your-jenkins-ip>:8080/github-webhook/
+Content type: application/json
+Events: Just the push event (or all events)
+Jenkins job → Configure → Build Triggers → ✅ GitHub hook trigger for GITScm polling
 
-Configured Webhooks
-URLEventsStatushttp://54.87.35.231:8080/github-we...All events❌ Failed (old server)http://43.204.35.151:8080/github-w...All events✅ Last delivery successful
-
-The second webhook (43.204.35.151) is the active Jenkins server — last delivery was successful.
-
+Now every git push to main will automatically trigger the Jenkins pipeline.
 
 📁 Project Structure
 react-node-ecommerce/
-│
-├── 📂 frontend/                  # React.js Frontend (Vite)
+├── frontend/          # React + Vite app
 │   ├── src/
-│   │   ├── components/           # Reusable UI components
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── ProductCard.jsx
-│   │   │   ├── PrivateRoute.jsx
-│   │   │   └── AdminRoute.jsx
-│   │   ├── pages/                # Page-level components
-│   │   │   ├── Home.jsx
-│   │   │   ├── Shop.jsx
-│   │   │   ├── Cart.jsx
-│   │   │   ├── Orders.jsx
-│   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   └── admin/
-│   │   │       ├── Dashboard.jsx
-│   │   │       ├── Products.jsx
-│   │   │       ├── Orders.jsx
-│   │   │       └── Users.jsx
-│   │   ├── context/
-│   │   │   ├── AuthContext.jsx
-│   │   │   └── CartContext.jsx
-│   │   ├── api/
-│   │   │   └── axios.js
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── public/
+│   ├── dist/          # Production build (generated)
 │   └── package.json
-│
-├── 📂 backend/                   # Node.js + Express API
+├── backend/           # Express + Node.js API
 │   ├── src/
-│   │   ├── config/
-│   │   │   ├── db.js
-│   │   │   └── cloudinary.js
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   │   └── authMiddleware.js
-│   │   ├── models/
-│   │   │   ├── User.js
-│   │   │   ├── Product.js
-│   │   │   └── Order.js
-│   │   ├── routes/
-│   │   └── app.js
-│   ├── index.js
+│   │   └── index.js   # Entry point
 │   └── package.json
-│
-├── Jenkinsfile                   # ← CI/CD pipeline definition
-└── README.md
+└── Jenkinsfile        # CI/CD pipeline definition
 
-🛠️ Local Development Setup
-Prerequisites
+🐛 Troubleshooting
+Jenkins sudo: I'm afraid I can't do that error:
+Jenkins user doesn't have sudo access by default. Fix:
+bashsudo visudo
+# Add this line:
+jenkins ALL=(ALL) NOPASSWD: /bin/rm, /bin/cp, /usr/bin/npm
+PM2 process not found on restart:
+The pipeline uses || pm2 start ... fallback — if the process doesn't exist, it starts fresh.
+Nginx not serving updated build:
+Manually trigger a new Jenkins build or check if the Deploy Frontend stage ran successfully.
 
-Node.js v18+, npm v9+, Git
-MongoDB Atlas account
-Cloudinary account
-
-1. Clone the Repository
-bashgit clone https://github.com/Adarsh7307/react-node-ecommerce.git
-cd react-node-ecommerce
-2. Backend Setup
-bashcd backend
-npm install
-Create backend/.env:
-envPORT=5000
-MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.mongodb.net/mern-shop
-JWT_SECRET=your_jwt_secret
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-CLIENT_URL=http://localhost:5173
-bashnpm run dev   # Starts at http://localhost:5000
-3. Frontend Setup
-bashcd ../frontend
-npm install
-Create frontend/.env:
-envVITE_API_URL=http://localhost:5000
-bashnpm run dev   # Starts at http://localhost:5173
-
-🔌 API Endpoints
-Auth — /api/auth
-MethodEndpointAuthDescriptionPOST/register❌Register new userPOST/login❌Login, get JWTGET/profile✅Get current user
-Products — /api/products
-MethodEndpointAuthDescriptionGET/❌Get all productsGET/:id❌Get single productPOST/🔒 AdminAdd product + imagePUT/:id🔒 AdminUpdate productDELETE/:id🔒 AdminDelete product
-Orders — /api/orders
-MethodEndpointAuthDescriptionPOST/✅Place orderGET/✅Get my ordersPUT/:id🔒 AdminUpdate status
-Admin — /api/admin
-MethodEndpointAuthDescriptionGET/dashboard🔒 AdminKPI metricsGET/users🔒 AdminAll usersGET/orders🔒 AdminAll orders
-
-🔐 Environment Variables
-VariableWhereDescriptionMONGO_URIBackendMongoDB Atlas connection stringJWT_SECRETBackendJWT signing secretCLOUDINARY_CLOUD_NAMEBackendCloudinary cloud nameCLOUDINARY_API_KEYBackendCloudinary API keyCLOUDINARY_API_SECRETBackendCloudinary API secretCLIENT_URLBackendFrontend URL (CORS)PORTBackendServer port (default 5000)VITE_API_URLFrontendBackend API base URL
-
-⚠️ Never commit .env files! Already in .gitignore.
-
-
-📊 Live Production Stats
-MetricValue👤 Registered Users13📦 Products Listed10🧾 Total Orders18💰 Total Revenue₹53,58,458🚀 Jenkins Builds#2 (latest SUCCESS)⚡ Deploy Time~10 seconds
-
-👥 Team
-NameRoleRoll NoMuhammad Siddique ShaikhFull Stack Developer2204190100027Adarsh TiwariBackend + DevOps2204190100004Subham KumarFrontend Developer2204190100050
-College: Prabhat Engineering College, Kanpur Dehat
-University: AKTU, Lucknow | Session: 2025-26 | B.Tech CSE
-Guided By: Dr. Nirvikar Katiyar & Mr. Mohd. Azhar Naushad
-
-🛠️ Troubleshooting
-ProblemFixJenkins build fails at "Deploy Frontend"Run echo "jenkins ALL=(ALL) NOPASSWD: /bin/rm, /bin/cp" >> /etc/sudoers on EC2Backend not startingSSH into EC2 → pm2 logs ecommerce-backend to see errorNginx showing 502 Bad GatewayBackend is down → pm2 restart ecommerce-backendWebhook not triggeringCheck Jenkins URL in GitHub → Settings → WebhooksPage refresh returns 404Nginx config missing try_files $uri /index.html
+👤 Author
+Adarsh — @Adarsh7307
 
 
